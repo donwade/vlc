@@ -1,0 +1,20 @@
+rm -rf build; mkdir build; 
+export CFLAGS=-I/home/dwade/local/include
+export CXXFLAGS=$CFLAGS
+export LIVE555_PREFIX=$CFLAGS
+unset LD_LIBRARY_PATH
+
+sudo apt-get update
+sudo apt-get build-dep vlc vlc-plugin-qt
+sudo apt-get install git autoconf libtool pkg-config build-essential
+./bootstrap
+rm -rf build; mkdir build
+cd build; ../configure --disable-live555 --disable-qt
+make -j3 | tee ../build.log
+ret=${PIPESTATUS[0]}
+if [ $ret == 0 ]; then
+    GREEN "pass"
+else
+    RED "fail"
+fi
+
