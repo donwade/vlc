@@ -1,25 +1,34 @@
+#!/bin/bash
 rm -rf build; mkdir build; 
 export CFLAGS=-I/home/dwade/local/include 
 export CXXFLAGS=$CFLAGS
 export LIVE555_PREFIX=$CFLAGS
 unset LD_LIBRARY_PATH
 
-sudo apt-get update
-sudo apt-get build-dep vlc vlc-plugin-qt
-sudo apt-get install git autoconf libtool pkg-config build-essential
+ask 'get build dependencies' 5
+if [ $? != 0 ]; then
+    sudo apt-get update
+    sudo apt-get build-dep vlc vlc-plugin-qt
+    sudo apt-get install git autoconf libtool pkg-config build-essential
+fi
 
 ./bootstrap
 
 rm -rf build; mkdir build
 
 cd build;
-export LDFLAGS='-lssl -lcrypto '
+
+../configure --help
+ask "ready" 5
 ../configure --enable-live555 --disable-qt
 
-make V=1-j3 | tee ../build.log
+#make V=1 -j3 | tee ../build.log
+make -j3 | tee ../build.log
+
 ret=${PIPESTATUS[0]}
 if [ $ret == 0 ]; then
     GREEN "pass"
+    sudo make install | tee ../install.log
 else
     RED "fail"
 fi
